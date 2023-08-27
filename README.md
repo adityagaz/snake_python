@@ -1,35 +1,138 @@
-# snake_python
-Snake Game using Python and Turtle Graphics
+import turtle
+import time
+import random
 
----
+delay = 0.1
+score = 0
+highest_score = 0
+bodies = []
 
-# Snake Game using Python and Turtle Graphics
+main_screen = turtle.Screen()
+main_screen.title("SNAKE BY SHANDILYA")
+main_screen.bgcolor("#585858")
+main_screen.setup(width=600, height=600)
 
-This repository contains a simple implementation of the classic Snake game using Python and the Turtle graphics library. The game allows players to control a snake that grows in length as it consumes food while avoiding collisions with the screen borders and its own body.
+snake_head = turtle.Turtle()
+snake_head.speed(0)
+snake_head.shape("square")
+snake_head.color("white")
+snake_head.up()
+snake_head.goto(0, 0)
+snake_head.direction = "stop"
 
-## Features
+snake_food = turtle.Turtle()
+snake_food.speed(0)
+snake_food.shape("square")
+snake_food.color("orange")
+snake_food.up()
+snake_food.goto(0, 200)
 
-- The Snake game is built using Python and the Turtle graphics library, making it a great example for beginners to understand basic game development concepts.
-- The snake's movement is controlled using arrow keys, and the game supports a "stop" action using the spacebar.
-- The snake grows longer as it consumes food, and the player's score increases with each successful consumption.
-- The game tracks the player's highest score throughout their gameplay.
-- The graphical interface of the game window is created using Turtle, making it interactive and visually appealing.
+score_board = turtle.Turtle()
+score_board.shape("circle")
+score_board.fillcolor("yellow")
+score_board.ht()
+score_board.up()
+score_board.goto(-280, 250)
+score_board.write('Score: 0 | Highest Score: 0', font=('arial', 15, 'bold'))
 
-## How to Play
+def moveup():
+    if snake_head.direction != 'down':
+        snake_head.direction = 'up'
 
-1. Clone the repository to your local machine.
-2. Run the Python script (`snake_game.py`) using a Python interpreter.
-3. Use the arrow keys to control the snake's movement: up, down, left, and right.
-4. Press the spacebar to stop the snake's movement.
-5. The objective is to consume food and grow the snake's length while avoiding collisions with the screen borders and its own body.
+def movedown():
+    if snake_head.direction != 'up':
+        snake_head.direction = 'down'
 
-## Requirements
+def moveleft():
+    if snake_head.direction != 'right':
+        snake_head.direction = 'left'
 
-- Python 3.x
-- Turtle graphics library (usually included with Python)
+def moveright():
+    if snake_head.direction != 'left':
+        snake_head.direction = 'right'
 
-## Credits
+def movestop():
+    snake_head.direction = 'stop'
 
-This project is created by Aditya Shandilya and is inspired by various Snake game implementations available online.
+def move():
+    if snake_head.direction == 'up':
+        y = snake_head.ycor()
+        snake_head.sety(y + 20)
 
----
+    if snake_head.direction == 'down':
+        y = snake_head.ycor()
+        snake_head.sety(y - 20)
+
+    if snake_head.direction == 'left':
+        x = snake_head.xcor()
+        snake_head.setx(x - 20)
+
+    if snake_head.direction == 'right':
+        x = snake_head.xcor()
+        snake_head.setx(x + 20)
+
+main_screen.listen()
+main_screen.onkey(moveup, 'Up')
+main_screen.onkey(movedown, 'Down')
+main_screen.onkey(moveleft, 'Left')
+main_screen.onkey(moveright, 'Right')
+main_screen.onkey(movestop, 'space')
+
+while True:
+    main_screen.update()
+
+    if snake_head.xcor() > 280:
+        snake_head.setx(-280)
+    if snake_head.xcor() < -280:
+        snake_head.setx(280)
+    if snake_head.ycor() > 280:
+        snake_head.sety(-280)
+    if snake_head.ycor() < -280:
+        snake_head.sety(280)
+
+    if snake_head.distance(snake_food) < 20:
+        x = random.randint(-290, 290)
+        y = random.randint(-290, 290)
+        snake_food.goto(x, y)
+
+        body = turtle.Turtle()
+        body.speed(0)
+        body.shape("circle")
+        body.color('white')
+        body.fillcolor("white")
+        body.up()
+        bodies.append(body)
+
+        score += 10
+        if score > highest_score:
+            highest_score = score
+        score_board.clear()
+        score_board.write('Score: {} | Highest Score: {}'.format(score, highest_score), font=('arial', 15, 'bold'))
+
+    for i in range(len(bodies) - 1, 0, -1):
+        x = bodies[i - 1].xcor()
+        y = bodies[i - 1].ycor()
+        bodies[i].goto(x, y)
+
+    if len(bodies) > 0:
+        x = snake_head.xcor()
+        y = snake_head.ycor()
+        bodies[0].goto(x, y)
+
+    move()
+
+    for body in bodies:
+        if body.distance(snake_head) < 20:
+            time.sleep(1)
+            snake_head.goto(0, 0)
+            snake_head.direction = 'stop'
+
+            for body in bodies:
+                body.ht()
+            bodies.clear()
+            score = 0
+            delay = 0.1
+            score_board.clear()
+            score_board.write('Score: {} | Highest Score: {}'.format(score, highest_score), font=('arial', 15, 'bold'))
+
+    time.sleep(delay)
